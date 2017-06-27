@@ -160,9 +160,9 @@ def createObjectivesFile(simFolder, dseConfig, absoluteResultsPath):
 def processObjectives(simFolder, dseConfig, absoluteResultsPath):
 	print("        processing objectives")
 	for objectiveName in dseConfig['objectiveDefinitions']['internalFunctions'].keys():
-		processObjective(absoluteResultsPath + os.path.sep + simFolder, dseConfig['objectiveDefinitions']['internalFunctions'][objectiveName]['columnID'], dseConfig['objectiveDefinitions']['internalFunctions'][objectiveName]['objectiveType'], objectiveName, absoluteExperimentPath)
+		processObjective(absoluteResultsPath + os.path.sep + simFolder, dseConfig['objectiveDefinitions']['internalFunctions'][objectiveName]['columnID'], dseConfig['objectiveDefinitions']['internalFunctions'][objectiveName]['objectiveType'], objectiveName)
 
-def processObjective(simFolder, colID, objType, objName, absoluteResultsPath):
+def processObjective(simFolder, colID, objType, objName):
 	subprocess.call(["python", "Objective_simple.py", simFolder, colID, objType, objName])
 	
 

@@ -3,6 +3,11 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from libs.Common import *
 
+#Objective Script Fault Codes
+FAULT_NO_RESULTS = 'noResultsFound'
+FAULT_COLUMN_NOT_FOUND = 'columnNotFound'
+
+
 absoluteExperimentDir = sys.argv[1]
 absoluteExperimentConfigPath = sys.argv[2]
 absoluteResultsPath = sys.argv[3]
