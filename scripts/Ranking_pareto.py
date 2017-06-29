@@ -6,6 +6,11 @@ from libs.Common import *
 #Objective Script Fault Codes
 FAULT_NO_RESULTS = 'noResultsFound'
 FAULT_COLUMN_NOT_FOUND = 'columnNotFound'
+FAULT_SIMULATION_DID_NOT_END = 'simulationDidNotEnd'
+FAULT_VALUE_COULD_NOT_BE_COMPUTED = 'valueCouldNotBeComputed'
+FAULT_OBJECTIVE_ARGUMENT_MISSING = 'objectiveArgumentMissing'
+FAULT_EMPTY_RESULTS_FOUND = 'emptyResultsFound'
+FAULT_GENERAL = 'fault'
 
 
 absoluteExperimentDir = sys.argv[1]
@@ -13,26 +18,70 @@ absoluteExperimentConfigPath = sys.argv[2]
 absoluteResultsPath = sys.argv[3]
 	
 def readInObjectivesFromSimResults(simulation_list):
-	rows = []
+	#rows = []
+	#rowsWithFaults = []
 	for folder in simulation_list:
-		rows.append(processFolder(folder))
-	return rows
+		#rows.append(processFolder(folder))
+		processFolder(folder)
+	#return rows
 			
 def processFolder(simFolder):
-	results_data_file =  open(absoluteResultsPath + os.path.sep + simFolder + os.path.sep + OBJECTIVES_FILE) 
-	results_json = json.load(results_data_file)	
+
+	file_path = absoluteResultsPath + os.path.sep + simFolder + os.path.sep + OBJECTIVES_FILE
+	fault_detected = False
 	thisRow = []
-	#for objective in results_json:
-		#ranking_json[simFolder][objective] = results_json[objective] <- commented out so we don't copy objective values into ranking json for now
-		#thisRow.append(results_json[objective])
 	
-	for objective in objectiveOrder:
-		print(objective)
-		#ranking_json[simFolder][objective] = results_json[objective] <- commented out so we don't copy objective values into ranking json for now
-		thisRow.append(results_json[objective])
+	if os.path.exists(file_path):
+	
+		results_data_file =  open(absoluteResultsPath + os.path.sep + simFolder + os.path.sep + OBJECTIVES_FILE) 
+		results_json = json.load(results_data_file)	
+
+		#for objective in results_json:
+			#ranking_json[simFolder][objective] = results_json[objective] <- commented out so we don't copy objective values into ranking json for now
+			#thisRow.append(results_json[objective])
+	
+		for objective in objectiveOrder:
+			print(objective)
+			#ranking_json[simFolder][objective] = results_json[objective] <- commented out so we don't copy objective values into ranking json for now
+		
+			if results_json[objective] == FAULT_NO_RESULTS:
+				fault_detected = True
+				
+			if results_json[objective] == FAULT_COLUMN_NOT_FOUND:
+				fault_detected = True
+			
+			if results_json[objective] == FAULT_SIMULATION_DID_NOT_END:
+				fault_detected = True
+				
+			if results_json[objective] == FAULT_VALUE_COULD_NOT_BE_COMPUTED:
+				fault_detected = True
+				
+			if results_json[objective] == FAULT_OBJECTIVE_ARGUMENT_MISSING:
+				fault_detected = True
+				
+			if results_json[objective] == FAULT_EMPTY_RESULTS_FOUND:
+				fault_detected = True
+				
+			if results_json[objective] == FAULT_GENERAL:
+				fault_detected = True
+				
+			# finally check that the objective is numeric to catch any mistype fault identifiers
+			try:
+				float(results_json[objective])
+				thisRow.append(results_json[objective])
+			except ValueError:
+				fault_detected = True
+	
+	else:
+		fault_detected = True
 		
 	thisRow.append(simFolder)
-	return thisRow
+	
+	if fault_detected:
+		rowsWithFaults.append(thisRow)
+	else:
+		rows.append(thisRow)
+	#return thisRow
 
 
 def getObjectiveOrder():
@@ -107,7 +156,22 @@ objectiveOrder = getObjectiveOrder()
 objectiveCount = len(paretoDetails)
 objectiveDirections = getObjectiveDirections(paretoDetails)
 
-rows = readInObjectivesFromSimResults(simulation_list)
+
+# rows contain results with valid objective data
+# rowsWithFaults contain all results that have invalid data 
+rows = []
+rowsWithFaults = []
+
+#rows = readInObjectivesFromSimResults(simulation_list)
+readInObjectivesFromSimResults(simulation_list)
+
+#output list of unrankable (faulty) results
+unrankableResultsID = 'unrankable'
+ranking_json[unrankableResultsID] = []
+unrankableR_root = ranking_json[unrankableResultsID]
+for unrankable in rowsWithFaults:
+	ranking_json[unrankableResultsID].append(unrankable[-1])
+
 
 #resultsSorted = sorted(rows)
 resultsSorted = multiOrderSort(rows, len(objectiveDirections)-1, objectiveDirections)

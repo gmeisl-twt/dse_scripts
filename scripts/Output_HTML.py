@@ -73,6 +73,19 @@ def trimmedParamName(param):
 	tokens = param.split("}")
 	return tokens[1][1:]
 		
+		
+def listUnrankbleResultsInTable():
+	htmlFile.write('<table>\n')
+	addUnrankableRows()	
+	htmlFile.write('</table>\n')
+	
+def addUnrankableRows():
+	this_ranking_root = ranking_json['unrankable']
+	#sorted_ranks = sorted(this_ranking_root)
+	for folder in this_ranking_root:
+		htmlFile.write('<tr>')
+		htmlFile.write('<td>' + folder + '</td>')
+		htmlFile.write('<tr>\n')
 
 
 htmlFileName = absoluteResultsPath + os.path.sep +  HTML_RESULTS
@@ -104,8 +117,17 @@ htmlFile.write('<h1>' + rank_id + '</h1>\n')
 # add graph
 addGraphsForRanking(rank_id)
 
+# create section
+htmlFile.write('<h2> Ranked results</h2>\n')
+
 # add table of data with id, objective values and parameters
 putRankingsIntoTable(rank_id)
+
+# create section
+htmlFile.write('<h2> Unrankable results</h2>\n')
+
+# add table of unrankable results
+listUnrankbleResultsInTable()
 
 # close html
 htmlFile.write ('</body>')
