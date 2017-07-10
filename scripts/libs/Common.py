@@ -1,4 +1,4 @@
-import os, time, json, platform, subprocess, io, sys
+import os, time, json, platform, subprocess, io, sys, re 
 ##################################
 # folders and files
 ##################################
@@ -215,8 +215,22 @@ def checkParameterContraints(parameterValues, contraints):
 
 def replaceNamesWithQualifiedNames(originalConstraint, parameterValues):
 	newConstraint = originalConstraint
+	print('\n\nREPLACING NAMES IN CONSTRAINT:' + originalConstraint + '...\n\n')
+	
 	for name in parameterValues.keys():
-		newConstraint = newConstraint.replace(name, "parameterValues['" + name + "']")
+
+		regex1 = r"\." 
+		subst1 = "\\\\."
+		escapedName = re.sub(regex1, subst1, name, 0) 	
+		print('replacing parameter name: ' + name + ' (escaped ' + escapedName + ')...')	
+		regex2 = (r"\B" + escapedName + "\\b") 
+
+		subst2 = "parameterValues['" + name + "']" 
+		newConstraint = re.sub(regex2, subst2, newConstraint, 0) 
+		
+		##debuggging
+		print('resulting constraint: ' + newConstraint + '\n\n')
+		##
 		
 	return newConstraint
 		
