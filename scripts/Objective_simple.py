@@ -67,6 +67,13 @@ def updateMean(val):
 	count += 1
 	resultVal = sum/count
 	
+def updateLast(val):
+	global firstVal
+	global resultVal
+	if firstVal:
+		firstVal = False
+	resultVal = val
+	
 
 for row in csvdata:
 	if firstRow:
@@ -79,5 +86,7 @@ for row in csvdata:
 			updateMin(float(row[columnToRead]))
 		elif objectiveType == 'mean':
 			updateMean(float(row[columnToRead]))
+		elif objectiveType == 'last':
+			updateLast(float(row[columnToRead]))
 			
 writeObjectiveToOutfile(objectiveID, resultVal)
